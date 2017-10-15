@@ -1,14 +1,11 @@
 'use strict';
 
 const esprima = require('esprima');
-const defaultFactory = require('./factory');
 
-const jsxToObject = (code, { factory } = {}) => {
-  if (!factory) factory = defaultFactory;
-
+const jsxToObject = (code) => {
   var tree = esprima.parseScript(code, { jsx: true, range: true });
   // return JSON.stringify(tree, null, 2);
-  return parse(code, tree.body, { factory });
+  return parse(code, tree.body);
 };
 
 // https://facebook.github.io/jsx/

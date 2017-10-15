@@ -1,16 +1,8 @@
 'use strict';
 
-var factory = require('./factory');
 var jsxToObject = require('./index');
 
 module.exports = {
-  'factory': {
-    'should convert array to object': (test) => {
-      test.expect(1);
-      test.deepEqual(factory(1, 2, 3), { type: 1, props: 2, children: 3 });
-      test.done();
-    }
-  },
   'jsxToObject': {
     'should ignore whitespaces in JSX tags': (test) => {
       test.expect(3);
