@@ -1,28 +1,41 @@
 'use strict';
 
-const walk = require('acorn/dist/walk');
-const acorn = require('acorn-jsx');
-
+const esprima = require('esprima');
 const defaultFactory = require('./factory');
 
-const jsxToObject = (code, { evaluate, factory } = {}) => {
-  // NOTE: Yes, we're using `eval` here! Do you have a better idea? Please, create an issue, or better yet - a PR!
-  if (!evaluate) evaluate = eval;
-  if (!factory) factory = defaultFactory.toString();
+const jsxToObject = (code, { factory } = {}) => {
+  if (!factory) factory = defaultFactory;
 
-  var ast = acorn.parse(code, { plugins: { jsx: true } });
+  var tree = esprima.parseScript(code, { jsx: true, range: true });
+  // return JSON.stringify(tree, null, 2);
+  return parse(code, tree.body, { factory });
+};
 
-  let result = code;
-  walk.full(ast, (node) => {
-    if (node.type === 'JSXElement') {
-      const expression = code.substring(node.start, node.end);
-      console.log(expression);
-      const evaluatedExpression = JSON.stringify(evaluate(`(${factory})${expression}`));
-      result = code.substring(0, node.start) + `(${evaluatedExpression})` + code.substring(node.end);
+// https://facebook.github.io/jsx/
+const parse = (code, nodes) => {
+  let parsedCode = code;
+  for (const node of nodes) {
+    switch (node.type) {
+      case 'JSXElement':
+        parsedCode = [
+          code.substring(0, node.range[0]),
+          `({ type: '${node.openingElement.name.name}' })`,
+          code.substring(node.range[1])
+        ].join('');
+        break;
+      case 'ExpressionStatement':
+        parsedCode = parse(code, [node.expression]);
+        break;
+      case 'VariableDeclaration':
+        parsedCode = parse(code, node.declarations);
+        break;
+      case 'VariableDeclarator':
+        parsedCode = parse(code, [node.init]);
+        break;
     }
-  });
-
-  return result;
+  }
+  return parsedCode;
 };
 
 module.exports = jsxToObject;
+// console.log(jsxToObject('<a />'));

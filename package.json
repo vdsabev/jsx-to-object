@@ -1,14 +1,13 @@
 {
   "name": "jsx-to-object",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "index.js",
   "scripts": {
     "test": "nodeunit test.js"
   },
   "dependencies": {
-    "acorn": "5.1.2",
-    "acorn-jsx": "4.0.1"
+    "esprima": "4.0.0"
   },
   "devDependencies": {
     "nodeunit": "0.11.1"
