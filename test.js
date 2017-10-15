@@ -20,35 +20,35 @@ module.exports = {
       test.done();
     },
 
-    'should convert intrinsic tag element type': (test) => {
+    'should convert type': (test) => {
       test.expect(1);
       test.equal(jsxToObject('<a />'), `({ type: 'a' })`);
       test.done();
     },
-    'should convert prop without value to boolean': (test) => {
+    'should convert props': (test) => {
+      test.expect(1);
+      test.equal(jsxToObject('<a b="c" />'), `({ type: 'a', props: { b: "c" } })`);
+      test.done();
+    },
+    'should convert props without value to boolean': (test) => {
       test.expect(1);
       test.equal(jsxToObject('<a b />'), `({ type: 'a', props: { b: true } })`);
       test.done();
     },
-    // 'should convert intrinsic tag element type & props': (test) => {
-    //   test.expect(1);
-    //   test.equal(jsxToObject('<a b="c" />'), `({ type: 'a', props: { b: 'c' } })`);
-    //   test.done();
-    // },
     'should convert children': (test) => {
       test.expect(1);
       test.equal(jsxToObject('<a>b</a>'), `({ type: 'a', children: ['b'] })`);
       test.done();
     },
-    // 'should convert intrinsic tag element type, props, & children': (test) => {
-    //   test.expect(1);
-    //   test.equal(jsxToObject('<a b="c">d</a>'), `({ type: 'a', props: { b: 'c' }, children: ['d'] })`);
-    //   test.done();
-    // },
+    'should convert type, props, and children': (test) => {
+      test.expect(1);
+      test.equal(jsxToObject('<a b="c">d</a>'), `({ type: 'a', props: { b: "c" }, children: ['d'] })`);
+      test.done();
+    },
 
     // 'should convert components': (test) => {
     //   test.expect(1);
-    //   test.equal(jsxToObject('<A b="c">d</A>'), `({ type: 'A', props: { b: 'c' }, children: ['d'] })`);
+    //   test.equal(jsxToObject('<A b="c">d</A>'), `({ type: 'A', props: { b: "c" }, children: ['d'] })`);
     //   test.done();
     // }
   }

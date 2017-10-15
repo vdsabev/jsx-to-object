@@ -24,7 +24,7 @@ const parse = (code, nodes) => {
 
         let props;
         if (node.openingElement.attributes.length > 0) {
-          props = 'props: { ' + node.openingElement.attributes.map((prop) => `${prop.name.name}: true`).join(', ') + ' }';
+          props = 'props: { ' + node.openingElement.attributes.map((attr) => `${attr.name.name}: ${attr.value ? attr.value.raw : 'true'}`).join(', ') + ' }';
         }
 
         let children;
@@ -44,7 +44,7 @@ const parse = (code, nodes) => {
       case 'JSXText':
         parsedCode = [
           code.substring(0, node.range[0]),
-          `'${node.value}'`,
+          `'${node.raw}'`,
           code.substring(node.range[1])
         ].join('');
         break;
@@ -65,4 +65,4 @@ const parse = (code, nodes) => {
 const identity = (x) => x;
 
 module.exports = jsxToObject;
-console.log(jsxToObject('<a>b</a>'));
+// console.log(jsxToObject('<a b="c"></a>'));
