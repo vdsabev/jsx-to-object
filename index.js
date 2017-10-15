@@ -17,9 +17,34 @@ const parse = (code, nodes) => {
   for (const node of nodes) {
     switch (node.type) {
       case 'JSXElement':
+        let type;
+        if (node.openingElement.name.name) {
+          type = `type: '${node.openingElement.name.name}'`;
+        }
+
+        let props;
+        if (node.openingElement.attributes.length > 0) {
+          props = 'props: { ' + node.openingElement.attributes.map((prop) => `${prop.name.name}: true`).join(', ') + ' }';
+        }
+
+        let children;
+        if (node.children.length > 0) {
+          const childrenStart = code.substring(node.openingElement.range[1]);
+          const childrenEnd = code.substring(node.closingElement.range[0]);
+          console.log(' '.repeat(childrenStart) + code.substring(childrenStart))
+          children = 'children: [' + parse(' '.repeat(childrenStart) + code.substring(childrenStart, childrenEnd), node.children) + ']';
+        }
+
         parsedCode = [
           code.substring(0, node.range[0]),
-          `({ type: '${node.openingElement.name.name}' })`,
+          `({ ${[type, props, children].filter(identity).join(', ')} })`,
+          code.substring(node.range[1])
+        ].join('');
+        break;
+      case 'JSXText':
+        parsedCode = [
+          code.substring(0, node.range[0]),
+          `'${node.value}'`,
           code.substring(node.range[1])
         ].join('');
         break;
@@ -37,5 +62,7 @@ const parse = (code, nodes) => {
   return parsedCode;
 };
 
+const identity = (x) => x;
+
 module.exports = jsxToObject;
-// console.log(jsxToObject('<a />'));
+console.log(jsxToObject('<a>b</a>'));

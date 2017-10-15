@@ -25,11 +25,21 @@ module.exports = {
       test.equal(jsxToObject('<a />'), `({ type: 'a' })`);
       test.done();
     },
+    'should convert prop without value to boolean': (test) => {
+      test.expect(1);
+      test.equal(jsxToObject('<a b />'), `({ type: 'a', props: { b: true } })`);
+      test.done();
+    },
     // 'should convert intrinsic tag element type & props': (test) => {
     //   test.expect(1);
     //   test.equal(jsxToObject('<a b="c" />'), `({ type: 'a', props: { b: 'c' } })`);
     //   test.done();
     // },
+    'should convert children': (test) => {
+      test.expect(1);
+      test.equal(jsxToObject('<a>b</a>'), `({ type: 'a', children: ['b'] })`);
+      test.done();
+    },
     // 'should convert intrinsic tag element type, props, & children': (test) => {
     //   test.expect(1);
     //   test.equal(jsxToObject('<a b="c">d</a>'), `({ type: 'a', props: { b: 'c' }, children: ['d'] })`);
