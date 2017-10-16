@@ -13,28 +13,38 @@ const parse = (code, nodes) => {
   let parsedCode = code;
   for (const node of nodes) {
     switch (node.type) {
+      // TODO: Refactor
       case 'JSXElement':
-        let type;
-        if (node.openingElement.name.name) {
-          type = `type: '${node.openingElement.name.name}'`;
-        }
+        const element = {
+          type: node.openingElement.name.name
+        };
 
-        let props;
         if (node.openingElement.attributes.length > 0) {
-          props = 'props: { ' + node.openingElement.attributes.map((attr) => `${attr.name.name}: ${attr.value ? attr.value.raw : 'true'}`).join(', ') + ' }';
+          element.props = '{ ' + node.openingElement.attributes.map((attr) => `${attr.name.name}: ${attr.value ? attr.value.raw : 'true'}`).join(', ') + ' }';
         }
 
-        let children;
         if (node.children.length > 0) {
           const childrenStart = code.substring(node.openingElement.range[1]);
           const childrenEnd = code.substring(node.closingElement.range[0]);
-          console.log(' '.repeat(childrenStart) + code.substring(childrenStart))
-          children = 'children: [' + parse(' '.repeat(childrenStart) + code.substring(childrenStart, childrenEnd), node.children) + ']';
+          element.children = '[' + parse(' '.repeat(childrenStart) + code.substring(childrenStart, childrenEnd), node.children) + ']';
         }
+
+        const elementCode = /[a-z]/.test(element.type.charAt(0)) ?
+          // Intrinsic element
+          `({ ${[
+            element.type ? `type: '${element.type}'` : null,
+            element.props ? `props: ${element.props}` : null,
+            element.children ? `children: ${element.children}` : null
+          ].filter(identity).join(', ')} })`
+          :
+          // Component
+          // NOTE: Replacing the component with a function call means we can't utilize caching provided by some Virtual DOM libraries
+          `${element.type}(${[element.props || 'null', element.children].filter(identity).join(', ')})`
+        ;
 
         parsedCode = [
           code.substring(0, node.range[0]),
-          `({ ${[type, props, children].filter(identity).join(', ')} })`,
+          elementCode,
           code.substring(node.range[1])
         ].join('');
         break;
@@ -59,7 +69,9 @@ const parse = (code, nodes) => {
   return parsedCode;
 };
 
+const prefixProp = (obj, key) => obj[key] != null ? `${key}: ${obj[key]}` : null;
+
 const identity = (x) => x;
 
 module.exports = jsxToObject;
-// console.log(jsxToObject('<a b="c"></a>'));
+// console.log(jsxToObject('<A b="c">d</A>'));

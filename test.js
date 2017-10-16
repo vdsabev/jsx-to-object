@@ -38,10 +38,10 @@ module.exports = {
       test.done();
     },
 
-    // 'should convert components': (test) => {
-    //   test.expect(1);
-    //   test.equal(jsxToObject('<A b="c">d</A>'), `({ type: 'A', props: { b: "c" }, children: ['d'] })`);
-    //   test.done();
-    // }
+    'should convert components': (test) => {
+      test.expect(1);
+      test.equal(jsxToObject('<A b="c">d</A>'), `A({ b: "c" }, ['d'])`);
+      test.done();
+    }
   }
 };
