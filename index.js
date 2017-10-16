@@ -2,8 +2,9 @@
 
 const esprima = require('esprima');
 
-const jsxToObject = (code) => {
-  var tree = esprima.parseScript(code, { jsx: true, range: true });
+const jsxToObject = (code, options = {}) => {
+  const getAST = options.isScript ? esprima.parseScript : esprima.parseModule;
+  var tree = getAST(code, { jsx: true, range: true });
   // return JSON.stringify(tree, null, 2);
   return parse(code, tree.body);
 };
@@ -11,9 +12,13 @@ const jsxToObject = (code) => {
 // https://facebook.github.io/jsx/
 const parse = (code, nodes) => {
   let parsedCode = code;
+
+  if (!Array.isArray(nodes)) {
+    nodes = [nodes];
+  }
+
   for (const node of nodes) {
     switch (node.type) {
-      // TODO: Refactor
       case 'JSXElement':
         const element = {
           type: node.openingElement.name.name
@@ -56,13 +61,24 @@ const parse = (code, nodes) => {
         ].join('');
         break;
       case 'ExpressionStatement':
-        parsedCode = parse(code, [node.expression]);
+        parsedCode = parse(code, node.expression);
         break;
       case 'VariableDeclaration':
         parsedCode = parse(code, node.declarations);
         break;
       case 'VariableDeclarator':
-        parsedCode = parse(code, [node.init]);
+        parsedCode = parse(code, node.init);
+        break;
+      case 'ArrowFunctionExpression':
+      case 'FunctionExpression':
+      case 'BlockStatement':
+        parsedCode = parse(code, node.body);
+        break;
+      case 'ReturnStatement':
+        parsedCode = parse(code, node.argument);
+        break;
+      case 'ExportNamedDeclaration':
+        parsedCode = parse(code, node.declaration);
         break;
     }
   }
@@ -74,4 +90,4 @@ const prefixProp = (obj, key) => obj[key] != null ? `${key}: ${obj[key]}` : null
 const identity = (x) => x;
 
 module.exports = jsxToObject;
-// console.log(jsxToObject('<A b="c">d</A>'));
+console.log(jsxToObject('export const x = () => <a b="c">d</a>;'));
