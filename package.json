@@ -4,12 +4,36 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "test": "nodeunit test.js"
+    "build": "tsc",
+    "start": "jest --watchAll",
+    "test": "jest"
   },
   "dependencies": {
+    "@types/esprima": "4.0.1",
     "esprima": "4.0.0"
   },
   "devDependencies": {
-    "nodeunit": "0.11.1"
+    "@types/jest": "22.1.0",
+    "@types/node": "9.4.0",
+    "jest": "22.1.4",
+    "ts-jest": "22.0.1",
+    "typescript": "2.6.2"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "!node_modules/**",
+      "!**/*.d.ts",
+      "!**/*.test.ts",
+      "**/*.ts"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "testRegex": "(/__tests__/.*|\\.test)\\.(ts|js)$",
+    "transform": {
+      ".ts": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    }
   }
 }
